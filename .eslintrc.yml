@@ -1,0 +1,7 @@
+extends: "es/2015/server"
+parserOptions:
+  sourceType: 'module'
+
+rules:
+  func-style: 0
+  no-console: 0

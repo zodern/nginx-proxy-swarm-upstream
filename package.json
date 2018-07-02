@@ -1,0 +1,19 @@
+{
+  "name": "proxy-endpoints",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dockerode": "^2.5.5",
+    "esm": "^3.0.18"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-es": "^0.9.1"
+  }
+}
