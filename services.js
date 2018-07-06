@@ -61,4 +61,19 @@ export default class Services extends EventEmitter {
         createTimeout();
       });
   }
+
+  usingContainer (containerId) {
+    return Object.keys(this.services).find(service =>
+      this.services[service].container === containerId);
+  }
+
+  removeServiceForContainer (containerId) {
+    const serviceName = this.usingContainer(containerId);
+    const service = this.services[serviceName];
+
+    this.emit('serviceRemoved', service);
+
+    // eslint-disable-next-line prefer-reflect
+    delete this.services[serviceName];
+  }
 }

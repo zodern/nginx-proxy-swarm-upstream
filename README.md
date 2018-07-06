@@ -18,7 +18,7 @@ docker run \
   zodern/nginx-proxy-swarm-upstream
 ```
 
-This image doesn't watch docker events yet, so the container needs to be restarted whenever a service is added or removed. Also, only the `dnsrr` endpoint mode is currently supported.
+Only the `dnsrr` endpoint mode is currently supported.
 
 Sticky sessions are enabled, and use `ip_hash`.
 
@@ -40,7 +40,6 @@ docker run \
 
 ## TODO:
 
-- Watch docker events
 - Support vip endpoint mode
 - Allow sticky sessions to be customized
 - Better error handling, and remove use of sync api's

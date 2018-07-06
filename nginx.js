@@ -21,6 +21,14 @@ export function generateConfig (hosts, endpoints) {
   });
 }
 
+export function removeConfig (hosts) {
+  hosts.forEach(host => {
+    const path = `${UPSTREAM_DIR}/${host}_upstream`;
+
+    fs.unlinkSync(path);
+  });
+}
+
 export function reloadNginx () {
   console.log('Reloading nginx');
 

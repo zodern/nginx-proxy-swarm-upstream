@@ -28,7 +28,7 @@ export function filterContainers (containers) {
 
       if (virtualHosts && swarmService) {
         serviceContainers.push({
-          container: container.Name,
+          container: container.Id,
           service: swarmService,
           hosts: virtualHosts.split(',')
         });
