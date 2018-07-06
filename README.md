@@ -6,7 +6,7 @@ This container is a work in progress, and only the minimum needed to work with [
 
 ## Instructions
 
-1. Start [nginx-proxy](https://github.com/jwilder/nginx-proxy). It should be connected to the same overlay network that your services are on. Please note: Using separate containers is currently not supported. A modified nginx.tmpl is required to support custom upstream blocks.
+1. Start [nginx-proxy](https://github.com/jwilder/nginx-proxy). It should be connected to the same overlay network that your services are on. Please note: Using separate containers is currently not supported. A [modified nginx.tmpl](https://github.com/zodern/meteor-up/blob/mup-1.5/src/plugins/proxy/assets/nginx.tmpl) is required to support custom upstream blocks.
 2. Run this image
 ```bash
 docker run \
