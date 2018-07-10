@@ -7,7 +7,7 @@ const services = new Services();
 
 services.on('endpointsChanged', service => {
   console.log('endpoint changed:', service.service, service.endpoints);
-  generateConfig(service.hosts, service.endpoints);
+  generateConfig(service.hosts, service.endpoints, service.port);
 
   // TODO: debounce
   reloadNginx();

@@ -22,7 +22,7 @@ Only the `dnsrr` endpoint mode is currently supported.
 
 Sticky sessions are enabled, and use `ip_hash`.
 
-nginx-proxy only looks at containers on the same server when creating the nginx config. For it to know about the service, the service should either have a task on the same server as the nginx-proxy, or you can run a container on the server with the correct environment variables (`VIRTUAL_HOST`, `LETSENCRYPT_HOST`, etc.). The service or container should also have the environment variable `SWARM_SERVICE` set to the name of the service.
+nginx-proxy only looks at containers on the same server when creating the nginx config. For it to know about the service, the service should either have a task on the same server as the nginx-proxy, or you can run a container on the server with the correct environment variables (`VIRTUAL_HOST`, `LETSENCRYPT_HOST`, etc.). The service or container should also have the environment variable `SWARM_SERVICE` set to the name of the service. `VIRTUAL_PORT` should be used if the service does not listen on port 80.
 
 For example, if you have the service named `app` running on different servers than nginx-proxy, you could create this container on the servers with nginx-proxy:
 

@@ -16,14 +16,15 @@ export default class Services extends EventEmitter {
 
   /**
    * Add services
-   * @param {Array} services Each service should have service, container, and hosts properties
+   * @param {Array} services Each service should have service, container, hosts, and port properties
    */
   addServices (services) {
-    services.forEach(({ service, container, hosts }) => {
+    services.forEach(({ service, container, hosts, port }) => {
       this.services[service] = {
         service,
         hosts,
         container,
+        port,
         endpoints: []
       };
 

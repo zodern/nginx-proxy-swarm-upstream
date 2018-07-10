@@ -25,12 +25,14 @@ export function filterContainers (containers) {
       const env = container.Config.Env;
       const virtualHosts = getEnvValue(env, 'VIRTUAL_HOST');
       const swarmService = getEnvValue(env, 'SWARM_SERVICE');
+      const virtualPort = getEnvValue(env, 'VIRTUAL_PORT');
 
       if (virtualHosts && swarmService) {
         serviceContainers.push({
           container: container.Id,
           service: swarmService,
-          hosts: virtualHosts.split(',')
+          hosts: virtualHosts.split(','),
+          port: virtualPort || 80
         });
       }
     });
