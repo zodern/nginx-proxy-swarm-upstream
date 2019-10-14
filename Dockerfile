@@ -1,5 +1,5 @@
 # if you're doing anything beyond your local machine, please pin this to a specific version at https://hub.docker.com/_/node/
-FROM node:8.11-alpine
+FROM node:12.11.1-alpine
 
 RUN mkdir -p /opt/app
 
