@@ -1,4 +1,5 @@
 import Docker from 'dockerode';
+import { EventEmitter } from 'events';
 
 export const docker = new Docker();
 
@@ -51,4 +52,32 @@ export function dockerEventListener (cb) {
       cb(data);
     });
   });
+}
+
+export class ContainerWatcher extends EventEmitter {
+  constructor () {
+    this.setupListener();
+  }
+
+  setupListener () {
+    dockerEventListener(() => {
+      this.handleEvent();
+    });
+  }
+
+  handleEvent (event) {
+    if (event.Type !== 'container') {
+      return;
+    }
+
+    switch (event.Action) {
+      case 'kill':
+        this.emit('killed', event.id);
+        break;
+      case 'start':
+        this.emit('start', event.id);
+
+      // no default
+    }
+  }
 }

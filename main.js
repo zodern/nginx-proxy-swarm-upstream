@@ -1,7 +1,7 @@
 /* eslint-disable no-console, no-warning-comments */
 import Services from './services';
-import { docker, dockerEventListener, filterContainers } from './get-endpoints';
-import { generateConfig, reloadNginx, removeConfig } from './nginx';
+import { ContainerWatcher, docker, filterContainers } from './docker';
+import { findExistingConfigs, generateConfig, reloadNginx, removeConfigs } from './nginx';
 
 const services = new Services();
 
@@ -15,13 +15,13 @@ services.on('endpointsChanged', service => {
 
 services.on('serviceRemoved', service => {
   console.log('service removed:', service.service);
-  removeConfig(service.hosts);
+  removeConfigs(service.hosts);
 
   reloadNginx();
 });
 
 function checkContainers (containers) {
-  filterContainers(containers).then(result => {
+  return filterContainers(containers).then(result => {
     if (result.length > 0) {
       console.log('Found services:', result.map(service => service.service));
       services.addServices(result);
@@ -29,25 +29,28 @@ function checkContainers (containers) {
   });
 }
 
-// Find already existent config containers
-docker.
-  listContainers().
-  then(checkContainers);
+const containerWatcher = new ContainerWatcher();
 
-dockerEventListener(event => {
-  if (event.Type !== 'container') {
-    return;
-  }
-
-  switch (event.Action) {
-    case 'kill':
-      if (services.usingContainer(event.id)) {
-        services.removeServiceForContainer(event.id);
-      }
-      break;
-    case 'start':
-      checkContainers([{ Id: event.id }]);
-
-    // no default
+containerWatcher.on('kill', containerId => {
+  if (services.usingContainer(containerId)) {
+    services.removeServiceForContainer(containerId);
   }
 });
+
+containerWatcher.on('start', containerId => {
+  checkContainers([{ Id: containerId }]);
+});
+
+// Find already existent config containers
+async function init () {
+  const containers = await docker.listContainers();
+
+  checkContainers(containers);
+
+  const generatedHosts = await findExistingConfigs();
+  const unused = generatedHosts.filter(host => !services.usingHost(host));
+
+  removeConfigs(unused);
+}
+
+init();

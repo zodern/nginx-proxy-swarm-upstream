@@ -56,16 +56,20 @@ export default class Services extends EventEmitter {
     const createTimeout = () => setTimeout(this.checkEndpoints.bind(this), 1000);
 
     Promise.all(promises).
-      then(createTimeout).
       catch(err => {
         console.log(err);
-        createTimeout();
-      });
+      }).
+      finally(createTimeout);
   }
 
   usingContainer (containerId) {
     return Object.keys(this.services).find(service =>
       this.services[service].container === containerId);
+  }
+
+  usingHost (host) {
+    return Object.keys(this.services).find(service =>
+      this.services[service].hosts.includes(host));
   }
 
   removeServiceForContainer (containerId) {
