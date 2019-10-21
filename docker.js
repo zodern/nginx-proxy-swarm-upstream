@@ -16,6 +16,10 @@ export function getEnvValue (env, variable) {
   return null;
 }
 
+export function inspectContainer (containerId) {
+  return docker.getContainer(containerId).inspect();
+}
+
 export function filterContainers (containers) {
   const promises = containers.map(container => docker.getContainer(container.Id).inspect());
 
@@ -42,6 +46,12 @@ export function filterContainers (containers) {
   });
 }
 
+export async function serviceExists (name) {
+  const result = await docker.listServices({ filters: JSON.stringify({ name: [ name ]}) });
+
+  return result.length > 0;
+}
+
 export function dockerEventListener (cb) {
   docker.getEvents().then(stream => {
     stream.setEncoding('utf8');
@@ -56,26 +66,36 @@ export function dockerEventListener (cb) {
 
 export class ContainerWatcher extends EventEmitter {
   constructor () {
+    super();
     this.setupListener();
   }
 
   setupListener () {
-    dockerEventListener(() => {
-      this.handleEvent();
+    dockerEventListener(event => {
+      if (event.Type === 'container') {
+        this.handleContainerEvent(event);
+      } else if (event.Type === 'service') {
+        this.handleServiceEvent(event);
+      }
     });
   }
 
-  handleEvent (event) {
-    if (event.Type !== 'container') {
-      return;
-    }
-
+  handleContainerEvent (event) {
     switch (event.Action) {
       case 'kill':
-        this.emit('killed', event.id);
+        this.emit('containerKilled', event.id, event.Actor.Attributes.name);
         break;
       case 'start':
-        this.emit('start', event.id);
+        this.emit('containerStarted', event.id);
+
+      // no default
+    }
+  }
+
+  handleServiceEvent (event) {
+    switch (event.Action) {
+      case 'create':
+        this.emit('serviceCreated', event.Actor.ID, event.Actor.Attributes.name);
 
       // no default
     }

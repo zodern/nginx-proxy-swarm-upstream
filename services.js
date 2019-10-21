@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import dns from 'dns';
 import EventEmitter from 'events';
+import { serviceExists } from './docker';
 
 function compareArrays (array1, array2) {
   return array1.every((item, index) => array2[index] === item);
@@ -25,11 +26,16 @@ export default class Services extends EventEmitter {
         hosts,
         container,
         port,
-        endpoints: []
+        endpoints: [],
+        exists: true
       };
 
       this.getEndpoints(service).catch(console.log);
     });
+  }
+
+  serviceExists (serviceName) {
+    this.services[serviceName].exists = true;
   }
 
   getEndpoints (service) {
@@ -51,11 +57,24 @@ export default class Services extends EventEmitter {
     });
   }
 
+  async handleServiceWithoutDns (serviceName) {
+    const exists = await serviceExists(serviceName);
+
+    if (!exists) {
+      this.emit('noService', serviceName);
+      this.services[serviceName].exists = false;
+    }
+  }
+
   checkEndpoints () {
-    const promises = Object.keys(this.services).map(service => this.getEndpoints(service));
+    const promises = Object.keys(this.services).
+      filter(serviceName => this.services[serviceName].exists).
+      map(serviceName => this.getEndpoints(serviceName).catch(() => {
+        this.handleServiceWithoutDns(serviceName);
+      }));
     const createTimeout = () => setTimeout(this.checkEndpoints.bind(this), 1000);
 
-    Promise.all(promises).
+    return Promise.all(promises).
       catch(err => {
         console.log(err);
       }).

@@ -20,25 +20,34 @@ services.on('serviceRemoved', service => {
   reloadNginx();
 });
 
+services.on('noService', serviceName => {
+  console.log(`Service doesn't exist ${serviceName}`);
+});
+
 function checkContainers (containers) {
-  return filterContainers(containers).then(result => {
-    if (result.length > 0) {
-      console.log('Found services:', result.map(service => service.service));
-      services.addServices(result);
-    }
-  });
+  return filterContainers(containers).
+    then(result => {
+      if (result.length > 0) {
+        console.log('Found services:', result.map(service => service.service));
+        services.addServices(result);
+      }
+    });
 }
 
-const containerWatcher = new ContainerWatcher();
+const dockerWatcher = new ContainerWatcher();
 
-containerWatcher.on('kill', containerId => {
+dockerWatcher.on('containerKilled', containerId => {
   if (services.usingContainer(containerId)) {
     services.removeServiceForContainer(containerId);
   }
 });
 
-containerWatcher.on('start', containerId => {
+dockerWatcher.on('containerStarted', containerId => {
   checkContainers([{ Id: containerId }]);
+});
+
+dockerWatcher.on('serviceCreated', (_id, serviceName) => {
+  services.serviceExists(serviceName);
 });
 
 // Find already existent config containers
