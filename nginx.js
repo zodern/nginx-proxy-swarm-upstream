@@ -28,11 +28,13 @@ export function generateConfig (hosts, endpoints, port) {
 }
 
 export function removeConfigs (hosts) {
-  hosts.forEach(host => {
+  const promises = hosts.map(host => {
     const filePath = `${UPSTREAM_DIR}/${host}_upstream`;
 
-    fs.unlinkSync(filePath);
+    return fs.unlink(filePath);
   });
+
+  return Promise.all(promises);
 }
 
 export function reloadNginx () {

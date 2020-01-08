@@ -64,8 +64,9 @@ async function init () {
 
   await checkContainers(containers, generatedHosts);
 
-  const generatedHosts = await findExistingConfigs();
-  const unused = generatedHosts.filter(host => !services.usingHost(host));
+  const unused = generatedHosts.
+    filter(({ host }) => !services.usingHost(host)).
+    map(({ host }) => host);
 
   removeConfigs(unused);
 }
