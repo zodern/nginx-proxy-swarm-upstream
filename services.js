@@ -4,7 +4,8 @@ import EventEmitter from 'events';
 import { serviceExists } from './docker';
 
 function compareArrays (array1, array2) {
-  return array1.every((item, index) => array2[index] === item);
+  return array1.length === array2.length &&
+    array1.every((item, index) => array2[index] === item);
 }
 
 export default class Services extends EventEmitter {
