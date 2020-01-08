@@ -20,13 +20,13 @@ export default class Services extends EventEmitter {
    * @param {Array} services Each service should have service, container, hosts, and port properties
    */
   addServices (services) {
-    services.forEach(({ service, container, hosts, port }) => {
+    services.forEach(({ service, container, hosts, port, endpoints = []}) => {
       this.services[service] = {
         service,
         hosts,
         container,
         port,
-        endpoints: [],
+        endpoints,
         exists: true
       };
 

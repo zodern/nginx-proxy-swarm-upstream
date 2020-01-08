@@ -1,7 +1,7 @@
 /* eslint-disable no-console, no-warning-comments */
 import Services from './services';
 import { ContainerWatcher, docker, filterContainers } from './docker';
-import { findExistingConfigs, generateConfig, reloadNginx, removeConfigs } from './nginx';
+import { generateConfig, getKnownServices, reloadNginx, removeConfigs } from './nginx';
 
 const services = new Services();
 
@@ -24,11 +24,18 @@ services.on('noService', serviceName => {
   console.log(`Service doesn't exist ${serviceName}`);
 });
 
-function checkContainers (containers) {
+function checkContainers (containers, existingConfigs) {
   return filterContainers(containers).
     then(result => {
       if (result.length > 0) {
-        console.log('Found services:', result.map(service => service.service));
+        result = result.map(service => {
+          const existingConfig = existingConfigs.find(({ host }) => service.hosts.includes(host)) || {};
+
+          return {
+            ...service,
+            endpoints: existingConfig.endpoints || []
+          };
+        });
         services.addServices(result);
       }
     });
@@ -53,8 +60,9 @@ dockerWatcher.on('serviceCreated', (_id, serviceName) => {
 // Find already existent config containers
 async function init () {
   const containers = await docker.listContainers();
+  const generatedHosts = await getKnownServices();
 
-  checkContainers(containers);
+  await checkContainers(containers, generatedHosts);
 
   const generatedHosts = await findExistingConfigs();
   const unused = generatedHosts.filter(host => !services.usingHost(host));
